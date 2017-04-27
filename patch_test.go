@@ -111,4 +111,47 @@ var _ = Describe("Patch", func() {
 			"---\n- foo: [bar, qux, baz]\n  bar: [bar, qux, baz]",
 		),
 	)
+
+	DescribeTable(
+		"failure cases",
+		func(doc, ops string) {
+			patch, err := yamlpatch.DecodePatch([]byte(ops))
+			Expect(err).NotTo(HaveOccurred())
+
+			_, err = patch.Apply([]byte(doc))
+			Expect(err).To(HaveOccurred())
+		},
+		Entry("adding an element to an object with a bad pointer",
+			"---\nfoo: bar",
+			"---\n- op: add\n  path: /baz/bat\n  value: qux",
+		),
+		Entry("removing an element from an object with a bad pointer",
+			"---\na:\n  b:\n    d: 1",
+			"---\n- op: remove\n  path: /a/b/c",
+		),
+		Entry("moving an element in an object with a bad pointer",
+			"---\na:\n  b:\n    d: 1",
+			"---\n- op: move\n  from: /a/b/c\n  path: /a/b/e",
+		),
+		Entry("removing an element from an array with a bad pointer",
+			"---\na:\n  b: [1]",
+			"---\n- op: remove\n  path: /a/b/1",
+		),
+		Entry("moving an element from an array with a bad pointer",
+			"---\na:\n  b: [1]",
+			"---\n- op: move\n  from: /a/b/1\n  path: /a/b/2",
+		),
+		Entry("an operation with an invalid pathz field",
+			"---\nfoo: bar",
+			"---\n- op: add\n  pathz: /baz\n  value: qux",
+		),
+		Entry("an add operation with an empty path",
+			"---\nfoo: bar",
+			"---\n- op: add\n  path: ''\n  value: qux",
+		),
+		Entry("a replace operation on an array with an invalid path",
+			"---\nname:\n  foo:\n    bat\n  qux:\n    bum",
+			"---\n- op: replace\n  path: /foo/2\n  value: bum",
+		),
+	)
 })
