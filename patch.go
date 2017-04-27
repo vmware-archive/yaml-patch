@@ -35,103 +35,11 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 	}
 
 	for _, op := range p {
-		switch op.Op {
-		case opAdd:
-			err = tryAdd(c, op)
-		case opRemove:
-			err = tryRemove(c, op)
-		case opReplace:
-			err = tryReplace(c, op)
-		case opMove:
-			err = tryMove(c, op)
-		case opCopy:
-			err = tryCopy(c, op)
-		default:
-			err = fmt.Errorf("Unexpected op: %s", op.Op)
-		}
-
+		err = op.Perform(c)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return yaml.Marshal(c)
-}
-
-func tryAdd(doc Container, op Operation) error {
-	con, key := findContainer(doc, op.Path)
-
-	if con == nil {
-		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
-	}
-
-	return con.Add(key, op.Value())
-}
-
-func tryRemove(doc Container, op Operation) error {
-	con, key := findContainer(doc, op.Path)
-
-	if con == nil {
-		return fmt.Errorf("yamlpatch remove operation does not apply: doc is missing path: %s", op.Path)
-	}
-
-	return con.Remove(key)
-}
-
-func tryReplace(doc Container, op Operation) error {
-	con, key := findContainer(doc, op.Path)
-
-	if con == nil {
-		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing path: %s", op.Path)
-	}
-
-	val, err := con.Get(key)
-	if val == nil || err != nil {
-		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing key: %s", op.Path)
-	}
-
-	return con.Set(key, op.Value())
-}
-
-func tryMove(doc Container, op Operation) error {
-	con, key := findContainer(doc, op.From)
-	if con == nil {
-		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing from path: %s", op.From)
-	}
-
-	val, err := con.Get(key)
-	if err != nil {
-		return err
-	}
-
-	err = con.Remove(key)
-	if err != nil {
-		return err
-	}
-
-	con, key = findContainer(doc, op.Path)
-	if con == nil {
-		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing destination path: %s", op.Path)
-	}
-
-	return con.Set(key, val)
-}
-
-func tryCopy(doc Container, op Operation) error {
-	con, key := findContainer(doc, op.From)
-	if con == nil {
-		return fmt.Errorf("copy operation does not apply: doc is missing from path: %s", op.From)
-	}
-
-	val, err := con.Get(key)
-	if err != nil {
-		return err
-	}
-
-	con, key = findContainer(doc, op.Path)
-	if con == nil {
-		return fmt.Errorf("copy operation does not apply: doc is missing destination path: %s", op.Path)
-	}
-
-	return con.Set(key, val)
 }
