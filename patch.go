@@ -278,7 +278,7 @@ func (d *partialArray) remove(key string) error {
 
 }
 
-func add(doc container, op operation) error {
+func tryAdd(doc container, op operation) error {
 	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
@@ -288,7 +288,7 @@ func add(doc container, op operation) error {
 	return con.add(key, op.value())
 }
 
-func remove(doc container, op operation) error {
+func tryRemove(doc container, op operation) error {
 	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
@@ -298,7 +298,7 @@ func remove(doc container, op operation) error {
 	return con.remove(key)
 }
 
-func replace(doc container, op operation) error {
+func tryReplace(doc container, op operation) error {
 	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
@@ -313,7 +313,7 @@ func replace(doc container, op operation) error {
 	return con.set(key, op.value())
 }
 
-func move(doc container, op operation) error {
+func tryMove(doc container, op operation) error {
 	con, key := findContainer(doc, op.From)
 	if con == nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing from path: %s", op.From)
@@ -337,7 +337,7 @@ func move(doc container, op operation) error {
 	return con.set(key, val)
 }
 
-func copyOp(doc container, op operation) error {
+func tryCopy(doc container, op operation) error {
 	con, key := findContainer(doc, op.From)
 	if con == nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing from path: %s", op.From)
@@ -384,15 +384,15 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 	for _, op := range p {
 		switch op.Op {
 		case "add":
-			err = add(c, op)
+			err = tryAdd(c, op)
 		case "remove":
-			err = remove(c, op)
+			err = tryRemove(c, op)
 		case "replace":
-			err = replace(c, op)
+			err = tryReplace(c, op)
 		case "move":
-			err = move(c, op)
+			err = tryMove(c, op)
 		case "copy":
-			err = copyOp(c, op)
+			err = tryCopy(c, op)
 		default:
 			err = fmt.Errorf("Unexpected op: %s", op.Op)
 		}
