@@ -52,7 +52,6 @@ func (o *Operation) Perform(c Container) error {
 
 func tryAdd(doc Container, op *Operation) error {
 	con, key := findContainer(doc, op.Path)
-
 	if con == nil {
 		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
 	}
@@ -62,7 +61,6 @@ func tryAdd(doc Container, op *Operation) error {
 
 func tryRemove(doc Container, op *Operation) error {
 	con, key := findContainer(doc, op.Path)
-
 	if con == nil {
 		return fmt.Errorf("yamlpatch remove operation does not apply: doc is missing path: %s", op.Path)
 	}
@@ -72,7 +70,6 @@ func tryRemove(doc Container, op *Operation) error {
 
 func tryReplace(doc Container, op *Operation) error {
 	con, key := findContainer(doc, op.Path)
-
 	if con == nil {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing path: %s", op.Path)
 	}
