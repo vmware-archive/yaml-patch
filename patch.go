@@ -14,8 +14,6 @@ const (
 	eAry
 )
 
-const unknown string = "unknown"
-
 type lazyNode struct {
 	raw   *interface{}
 	doc   partialDoc
