@@ -126,21 +126,25 @@ func (n *Node) NodeSlice() (*NodeSlice, error) {
 // NodeMap represents a YAML object
 type NodeMap map[interface{}]*Node
 
-func (n *NodeMap) set(key string, val *Node) error {
+// Set or replace the Node at key with the provided Node
+func (n *NodeMap) Set(key string, val *Node) error {
 	(*n)[key] = val
 	return nil
 }
 
-func (n *NodeMap) add(key string, val *Node) error {
+// Add the provided Node at the given key
+func (n *NodeMap) Add(key string, val *Node) error {
 	(*n)[key] = val
 	return nil
 }
 
-func (n *NodeMap) get(key string) (*Node, error) {
+// Get the node at the given key
+func (n *NodeMap) Get(key string) (*Node, error) {
 	return (*n)[key], nil
 }
 
-func (n *NodeMap) remove(key string) error {
+// Remove the node at the given key
+func (n *NodeMap) Remove(key string) error {
 	_, ok := (*n)[key]
 	if !ok {
 		return fmt.Errorf("Unable to remove nonexistent key: %s", key)
@@ -153,7 +157,8 @@ func (n *NodeMap) remove(key string) error {
 // NodeSlice represents a YAML array
 type NodeSlice []*Node
 
-func (n *NodeSlice) set(key string, val *Node) error {
+// Set the Node at the given index with the provided Node
+func (n *NodeSlice) Set(key string, val *Node) error {
 	idx, err := strconv.Atoi(key)
 	if err != nil {
 		return err
@@ -180,7 +185,8 @@ func (n *NodeSlice) set(key string, val *Node) error {
 	return nil
 }
 
-func (n *NodeSlice) add(key string, val *Node) error {
+// Add the provided Node at the given index
+func (n *NodeSlice) Add(key string, val *Node) error {
 	if key == "-" {
 		*n = append(*n, val)
 		return nil
@@ -203,7 +209,8 @@ func (n *NodeSlice) add(key string, val *Node) error {
 	return nil
 }
 
-func (n *NodeSlice) get(key string) (*Node, error) {
+// Get the node at the given index
+func (n *NodeSlice) Get(key string) (*Node, error) {
 	idx, err := strconv.Atoi(key)
 	if err != nil {
 		return nil, err
@@ -216,7 +223,8 @@ func (n *NodeSlice) get(key string) (*Node, error) {
 	return (*n)[idx], nil
 }
 
-func (n *NodeSlice) remove(key string) error {
+// Remove the node at the given index
+func (n *NodeSlice) Remove(key string) error {
 	idx, err := strconv.Atoi(key)
 	if err != nil {
 		return err

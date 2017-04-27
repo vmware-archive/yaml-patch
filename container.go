@@ -2,14 +2,15 @@ package yamlpatch
 
 import "strings"
 
-type container interface {
-	get(key string) (*Node, error)
-	set(key string, val *Node) error
-	add(key string, val *Node) error
-	remove(key string) error
+// Container is the interface for performing operations on Nodes
+type Container interface {
+	Get(key string) (*Node, error)
+	Set(key string, val *Node) error
+	Add(key string, val *Node) error
+	Remove(key string) error
 }
 
-func findContainer(c container, path string) (container, string) {
+func findContainer(c Container, path string) (Container, string) {
 	foundContainer := c
 
 	split := strings.Split(path, "/")
@@ -23,7 +24,7 @@ func findContainer(c container, path string) (container, string) {
 	key := split[len(split)-1]
 
 	for _, part := range parts {
-		node, err := foundContainer.get(decodePatchKey(part))
+		node, err := foundContainer.Get(decodePatchKey(part))
 		if node == nil || err != nil {
 			return nil, ""
 		}

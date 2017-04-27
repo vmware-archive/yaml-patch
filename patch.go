@@ -24,7 +24,7 @@ func DecodePatch(bs []byte) (Patch, error) {
 
 // Apply returns a YAML document that has been mutated per the patch
 func (p Patch) Apply(doc []byte) ([]byte, error) {
-	var c container = &NodeMap{}
+	var c Container = &NodeMap{}
 
 	err := yaml.Unmarshal(doc, c)
 	if err != nil {
@@ -59,53 +59,53 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 	return yaml.Marshal(c)
 }
 
-func tryAdd(doc container, op Operation) error {
+func tryAdd(doc Container, op Operation) error {
 	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
 		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
 	}
 
-	return con.add(key, op.Value())
+	return con.Add(key, op.Value())
 }
 
-func tryRemove(doc container, op Operation) error {
+func tryRemove(doc Container, op Operation) error {
 	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
 		return fmt.Errorf("yamlpatch remove operation does not apply: doc is missing path: %s", op.Path)
 	}
 
-	return con.remove(key)
+	return con.Remove(key)
 }
 
-func tryReplace(doc container, op Operation) error {
+func tryReplace(doc Container, op Operation) error {
 	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing path: %s", op.Path)
 	}
 
-	val, err := con.get(key)
+	val, err := con.Get(key)
 	if val == nil || err != nil {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing key: %s", op.Path)
 	}
 
-	return con.set(key, op.Value())
+	return con.Set(key, op.Value())
 }
 
-func tryMove(doc container, op Operation) error {
+func tryMove(doc Container, op Operation) error {
 	con, key := findContainer(doc, op.From)
 	if con == nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing from path: %s", op.From)
 	}
 
-	val, err := con.get(key)
+	val, err := con.Get(key)
 	if err != nil {
 		return err
 	}
 
-	err = con.remove(key)
+	err = con.Remove(key)
 	if err != nil {
 		return err
 	}
@@ -115,16 +115,16 @@ func tryMove(doc container, op Operation) error {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing destination path: %s", op.Path)
 	}
 
-	return con.set(key, val)
+	return con.Set(key, val)
 }
 
-func tryCopy(doc container, op Operation) error {
+func tryCopy(doc Container, op Operation) error {
 	con, key := findContainer(doc, op.From)
 	if con == nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing from path: %s", op.From)
 	}
 
-	val, err := con.get(key)
+	val, err := con.Get(key)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func tryCopy(doc container, op Operation) error {
 		return fmt.Errorf("copy operation does not apply: doc is missing destination path: %s", op.Path)
 	}
 
-	return con.set(key, val)
+	return con.Set(key, val)
 }
 
 // From http://tools.ietf.org/html/rfc6901#section-4 :
