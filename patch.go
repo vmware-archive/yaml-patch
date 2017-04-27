@@ -38,9 +38,6 @@ func newLazyNode(raw *interface{}) *lazyNode {
 func (n *lazyNode) MarshalYAML() (interface{}, error) {
 	switch n.which {
 	case eRaw:
-		if n.raw == nil {
-			panic(fmt.Sprintf("type is raw but raw is nil: %p", n))
-		}
 		return *n.raw, nil
 	case eDoc:
 		return n.doc, nil
@@ -119,9 +116,6 @@ type operation struct {
 }
 
 func (o operation) value() *lazyNode {
-	if o.RawValue == nil {
-		panic(fmt.Sprintf("value is nil: %#v", o))
-	}
 	return newLazyNode(o.RawValue)
 }
 
