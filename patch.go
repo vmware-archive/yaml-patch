@@ -414,14 +414,9 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 // occurrence of the sequence '~0' to '~'.
 
 var (
-	rfc6901Encoder = strings.NewReplacer("~", "~0", "/", "~1")
 	rfc6901Decoder = strings.NewReplacer("~1", "/", "~0", "~")
 )
 
 func decodePatchKey(k string) string {
 	return rfc6901Decoder.Replace(k)
-}
-
-func encodePatchKey(k string) string {
-	return rfc6901Encoder.Replace(k)
 }
