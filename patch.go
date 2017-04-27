@@ -130,8 +130,8 @@ func isArray(iface interface{}) bool {
 	return ok
 }
 
-func findObject(c container, path string) (container, string) {
-	doc := c
+func findContainer(c container, path string) (container, string) {
+	foundContainer := c
 
 	split := strings.Split(path, "/")
 
@@ -144,25 +144,25 @@ func findObject(c container, path string) (container, string) {
 	key := split[len(split)-1]
 
 	for _, part := range parts {
-		next, err := doc.get(decodePatchKey(part))
-		if next == nil || err != nil {
+		node, err := foundContainer.get(decodePatchKey(part))
+		if node == nil || err != nil {
 			return nil, ""
 		}
 
-		if isArray(*next.raw) {
-			doc, err = next.intoAry()
+		if isArray(*node.raw) {
+			foundContainer, err = node.intoAry()
 			if err != nil {
 				return nil, ""
 			}
 		} else {
-			doc, err = next.intoDoc()
+			foundContainer, err = node.intoDoc()
 			if err != nil {
 				return nil, ""
 			}
 		}
 	}
 
-	return doc, decodePatchKey(key)
+	return foundContainer, decodePatchKey(key)
 }
 
 type partialDoc map[interface{}]*lazyNode
@@ -279,7 +279,7 @@ func (d *partialArray) remove(key string) error {
 }
 
 func add(doc container, op operation) error {
-	con, key := findObject(doc, op.Path)
+	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
 		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
@@ -289,7 +289,7 @@ func add(doc container, op operation) error {
 }
 
 func remove(doc container, op operation) error {
-	con, key := findObject(doc, op.Path)
+	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
 		return fmt.Errorf("yamlpatch remove operation does not apply: doc is missing path: %s", op.Path)
@@ -299,7 +299,7 @@ func remove(doc container, op operation) error {
 }
 
 func replace(doc container, op operation) error {
-	con, key := findObject(doc, op.Path)
+	con, key := findContainer(doc, op.Path)
 
 	if con == nil {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing path: %s", op.Path)
@@ -314,7 +314,7 @@ func replace(doc container, op operation) error {
 }
 
 func move(doc container, op operation) error {
-	con, key := findObject(doc, op.From)
+	con, key := findContainer(doc, op.From)
 	if con == nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing from path: %s", op.From)
 	}
@@ -329,7 +329,7 @@ func move(doc container, op operation) error {
 		return err
 	}
 
-	con, key = findObject(doc, op.Path)
+	con, key = findContainer(doc, op.Path)
 	if con == nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing destination path: %s", op.Path)
 	}
@@ -338,7 +338,7 @@ func move(doc container, op operation) error {
 }
 
 func copyOp(doc container, op operation) error {
-	con, key := findObject(doc, op.From)
+	con, key := findContainer(doc, op.From)
 	if con == nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing from path: %s", op.From)
 	}
@@ -348,7 +348,7 @@ func copyOp(doc container, op operation) error {
 		return err
 	}
 
-	con, key = findObject(doc, op.Path)
+	con, key = findContainer(doc, op.Path)
 	if con == nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing destination path: %s", op.Path)
 	}
