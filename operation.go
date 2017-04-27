@@ -22,6 +22,6 @@ type Operation struct {
 }
 
 // Value returns the operation's value as a *Node
-func (o Operation) Value() *Node {
+func (o *Operation) Value() *Node {
 	return NewNode(o.RawValue)
 }
