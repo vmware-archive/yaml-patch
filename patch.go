@@ -14,6 +14,16 @@ const (
 	eAry
 )
 
+type Operation string
+
+const (
+	opAdd     Operation = "add"
+	opRemove  Operation = "remove"
+	opReplace Operation = "replace"
+	opMove    Operation = "move"
+	opCopy    Operation = "copy"
+)
+
 type lazyNode struct {
 	raw   *interface{}
 	doc   partialDoc
@@ -102,7 +112,7 @@ func (n *lazyNode) intoAry() (*partialArray, error) {
 }
 
 type operation struct {
-	Op       string       `yaml:"op,omitempty"`
+	Op       Operation    `yaml:"op,omitempty"`
 	Path     string       `yaml:"path,omitempty"`
 	From     string       `yaml:"from,omitempty"`
 	RawValue *interface{} `yaml:"value,omitempty"`
@@ -383,15 +393,15 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 
 	for _, op := range p {
 		switch op.Op {
-		case "add":
+		case opAdd:
 			err = tryAdd(c, op)
-		case "remove":
+		case opRemove:
 			err = tryRemove(c, op)
-		case "replace":
+		case opReplace:
 			err = tryReplace(c, op)
-		case "move":
+		case opMove:
 			err = tryMove(c, op)
-		case "copy":
+		case opCopy:
 			err = tryCopy(c, op)
 		default:
 			err = fmt.Errorf("Unexpected op: %s", op.Op)
