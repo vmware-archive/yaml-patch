@@ -370,9 +370,8 @@ func DecodePatch(bs []byte) (Patch, error) {
 
 // Apply returns a YAML document that has been mutated per the patch
 func (p Patch) Apply(doc []byte) ([]byte, error) {
-	var c container
+	var c container = &partialDoc{}
 
-	c = &partialDoc{}
 	err := yaml.Unmarshal(doc, c)
 	if err != nil {
 		c = &partialArray{}
