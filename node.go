@@ -158,15 +158,15 @@ func (n *NodeMap) Remove(key string) error {
 type NodeSlice []*Node
 
 // Set the Node at the given index with the provided Node
-func (n *NodeSlice) Set(key string, val *Node) error {
-	idx, err := strconv.Atoi(key)
+func (n *NodeSlice) Set(index string, val *Node) error {
+	i, err := strconv.Atoi(index)
 	if err != nil {
 		return err
 	}
 
 	sz := len(*n)
-	if idx+1 > sz {
-		sz = idx + 1
+	if i+1 > sz {
+		sz = i + 1
 	}
 
 	ary := make([]*Node, sz)
@@ -175,24 +175,24 @@ func (n *NodeSlice) Set(key string, val *Node) error {
 
 	copy(ary, cur)
 
-	if idx >= len(ary) {
-		return fmt.Errorf("Unable to access invalid index: %d", idx)
+	if i >= len(ary) {
+		return fmt.Errorf("Unable to access invalid index: %d", i)
 	}
 
-	ary[idx] = val
+	ary[i] = val
 
 	*n = ary
 	return nil
 }
 
 // Add the provided Node at the given index
-func (n *NodeSlice) Add(key string, val *Node) error {
-	if key == "-" {
+func (n *NodeSlice) Add(index string, val *Node) error {
+	if index == "-" {
 		*n = append(*n, val)
 		return nil
 	}
 
-	idx, err := strconv.Atoi(key)
+	i, err := strconv.Atoi(index)
 	if err != nil {
 		return err
 	}
@@ -201,45 +201,45 @@ func (n *NodeSlice) Add(key string, val *Node) error {
 
 	cur := *n
 
-	copy(ary[0:idx], cur[0:idx])
-	ary[idx] = val
-	copy(ary[idx+1:], cur[idx:])
+	copy(ary[0:i], cur[0:i])
+	ary[i] = val
+	copy(ary[i+1:], cur[i:])
 
 	*n = ary
 	return nil
 }
 
 // Get the node at the given index
-func (n *NodeSlice) Get(key string) (*Node, error) {
-	idx, err := strconv.Atoi(key)
+func (n *NodeSlice) Get(index string) (*Node, error) {
+	i, err := strconv.Atoi(index)
 	if err != nil {
 		return nil, err
 	}
 
-	if idx >= len(*n) {
-		return nil, fmt.Errorf("Unable to access invalid index: %d", idx)
+	if i >= len(*n) {
+		return nil, fmt.Errorf("Unable to access invalid index: %d", i)
 	}
 
-	return (*n)[idx], nil
+	return (*n)[i], nil
 }
 
 // Remove the node at the given index
-func (n *NodeSlice) Remove(key string) error {
-	idx, err := strconv.Atoi(key)
+func (n *NodeSlice) Remove(index string) error {
+	i, err := strconv.Atoi(index)
 	if err != nil {
 		return err
 	}
 
 	cur := *n
 
-	if idx >= len(cur) {
-		return fmt.Errorf("Unable to remove invalid index: %d", idx)
+	if i >= len(cur) {
+		return fmt.Errorf("Unable to remove invalid index: %d", i)
 	}
 
 	ary := make([]*Node, len(cur)-1)
 
-	copy(ary[0:idx], cur[0:idx])
-	copy(ary[idx:], cur[idx+1:])
+	copy(ary[0:i], cur[0:i])
+	copy(ary[i:], cur[i+1:])
 
 	*n = ary
 	return nil
