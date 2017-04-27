@@ -5,14 +5,18 @@ import (
 	"strconv"
 )
 
+// NodeType is a type alias
 type NodeType int
 
+// NodeTypes
 const (
 	NodeTypeRaw NodeType = iota
 	NodeTypeMap
 	NodeTypeSlice
 )
 
+// Node holds a YAML document that has not yet been processed into a NodeMap or
+// NodeSlice
 type Node struct {
 	raw       *interface{}
 	nodeMap   NodeMap
@@ -20,10 +24,13 @@ type Node struct {
 	nodeType  NodeType
 }
 
+// NewNode returns a new Node. It expects a pointer to an interface{}
 func NewNode(raw *interface{}) *Node {
 	return &Node{raw: raw, nodeType: NodeTypeRaw}
 }
 
+// MarshalYAML implements yaml.Marshaler, and returns the correct interface{}
+// to be marshaled
 func (n *Node) MarshalYAML() (interface{}, error) {
 	switch n.nodeType {
 	case NodeTypeRaw:
@@ -37,6 +44,7 @@ func (n *Node) MarshalYAML() (interface{}, error) {
 	}
 }
 
+// UnmarshalYAML implements yaml.Unmarshaler
 func (n *Node) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var data interface{}
 
@@ -50,6 +58,7 @@ func (n *Node) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
+// IsNodeSlice returns whether the contents it holds is a slice or not
 func (n *Node) IsNodeSlice() bool {
 	if n.nodeType == NodeTypeRaw {
 		switch (*n.raw).(type) {
@@ -63,6 +72,8 @@ func (n *Node) IsNodeSlice() bool {
 	return n.nodeType == NodeTypeSlice
 }
 
+// NodeMap returns the node as a NodeMap, if the raw interface{} it holds is
+// indeed a map[interface{}]interface{}
 func (n *Node) NodeMap() (*NodeMap, error) {
 	if n.nodeMap != nil {
 		return &n.nodeMap, nil
@@ -87,6 +98,8 @@ func (n *Node) NodeMap() (*NodeMap, error) {
 	}
 }
 
+// NodeSlice returns the node as a NodeSlice, if the raw interface{} it holds
+// is indeed a []interface{}
 func (n *Node) NodeSlice() (*NodeSlice, error) {
 	if n.nodeSlice != nil {
 		return &n.nodeSlice, nil
@@ -110,6 +123,7 @@ func (n *Node) NodeSlice() (*NodeSlice, error) {
 	}
 }
 
+// NodeMap represents a YAML object
 type NodeMap map[interface{}]*Node
 
 func (n *NodeMap) set(key string, val *Node) error {
@@ -136,6 +150,7 @@ func (n *NodeMap) remove(key string) error {
 	return nil
 }
 
+// NodeSlice represents a YAML array
 type NodeSlice []*Node
 
 func (n *NodeSlice) set(key string, val *Node) error {
