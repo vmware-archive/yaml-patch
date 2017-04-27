@@ -196,11 +196,6 @@ func (d *partialDoc) remove(key string) error {
 type partialArray []*lazyNode
 
 func (d *partialArray) set(key string, val *lazyNode) error {
-	// if key == "-" {
-	// 	*d = append(*d, val)
-	// 	return nil
-	// }
-
 	idx, err := strconv.Atoi(key)
 	if err != nil {
 		return err
@@ -344,35 +339,6 @@ func move(doc *container, op operation) error {
 	return con.set(key, val)
 }
 
-// func (p Patch) test(doc *container, op operation) error {
-// 	path := op.path()
-
-// 	con, key := findObject(doc, path)
-
-// 	if con == nil {
-// 		return fmt.Errorf("yamlpatch test operation does not apply: is missing path: %s", path)
-// 	}
-
-// 	val, err := con.get(key)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	if val == nil {
-// 		if op.value().raw == nil {
-// 			return nil
-// 		}
-// 		return fmt.Errorf("Testing value %s failed", path)
-// 	}
-
-// 	if val.equal(op.value()) {
-// 		return nil
-// 	}
-
-// 	return fmt.Errorf("Testing value %s failed", path)
-// }
-
 func copyOp(doc *container, op operation) error {
 	con, key := findObject(doc, op.From)
 	if con == nil {
@@ -430,8 +396,6 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 			err = move(&c, op)
 		case "copy":
 			err = copyOp(&c, op)
-		// 	// case "test":
-		// 	// 	err = p.test(&c, op)
 		default:
 			err = fmt.Errorf("Unexpected op: %s", op.Op)
 		}
