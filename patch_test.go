@@ -306,21 +306,18 @@ foo: [baz]
     - thud: boo
     - foo: bar
 - corge: grault
-
 `,
 				`---
 - op: replace
   path: /0/foo=bar
   value:
     baz: quux
-
 `,
 				`---
 - waldo:
     - thud: boo
     - baz: quux
 - corge: grault
-
 `,
 			),
 			Entry("a path that begins with an object key and ends with a composite key",
@@ -329,21 +326,18 @@ waldo:
   - thud: boo
   - foo: bar
 corge: grault
-
 `,
 				`---
 - op: replace
   path: /waldo/foo=bar
   value:
     baz: quux
-
 `,
 				`---
 waldo:
   - thud: boo
   - baz: quux
 corge: grault
-
 `,
 			),
 			Entry("removes multiple entries in a single op",
@@ -360,7 +354,6 @@ qux:
 				`---
 - op: remove
   path: /waldo=fred
-
 `,
 				`---
 foo:
