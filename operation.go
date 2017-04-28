@@ -36,6 +36,13 @@ func (p *OpPath) Decompose() ([]string, string, error) {
 	return parts[:len(parts)-1], parts[len(parts)-1], nil
 }
 
+// ContainsExtendedSyntax returns whether the OpPath uses the "key=value"
+// format, as in "/foo/name=bar", where /foo points at an array that contains
+// an object with a key "name" that has a value "bar"
+func (p *OpPath) ContainsExtendedSyntax() bool {
+	return strings.Contains(string(*p), "=")
+}
+
 // Operation is an RFC6902 'Operation'
 // https://tools.ietf.org/html/rfc6902#section-4
 type Operation struct {

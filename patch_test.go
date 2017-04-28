@@ -114,6 +114,72 @@ var _ = Describe("Patch", func() {
 		)
 
 		DescribeTable(
+			"with extended syntax",
+			func(doc, ops, expectedYAML string) {
+				patch, err := yamlpatch.DecodePatch([]byte(ops))
+				Expect(err).NotTo(HaveOccurred())
+
+				actualBytes, err := patch.Apply([]byte(doc))
+				Expect(err).NotTo(HaveOccurred())
+
+				var actualIface interface{}
+				err = yaml.Unmarshal(actualBytes, &actualIface)
+				Expect(err).NotTo(HaveOccurred())
+
+				var expectedIface interface{}
+				err = yaml.Unmarshal([]byte(expectedYAML), &expectedIface)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(actualIface).To(Equal(expectedIface))
+			},
+			Entry("a path that begins with a composite key",
+				"---\n- foo: bar",
+				"---\n- op: replace\n  path: /foo=bar\n  value:\n    baz: quux",
+				"---\n- baz: quux",
+			),
+			Entry("a path that begins with an array index and ends with a composite key",
+				`---
+- waldo:
+    - thud: boo
+    - foo: bar
+- corge: grault
+`,
+				`---
+- op: replace
+  path: /0/foo=bar
+  value:
+    baz: quux
+`,
+				`---
+- waldo:
+    - thud: boo
+    - baz: quux
+- corge: grault
+`,
+			),
+			Entry("a path that begins with an object key and ends with a composite key",
+				`---
+waldo:
+  - thud: boo
+  - foo: bar
+corge: grault
+`,
+				`---
+- op: replace
+  path: /waldo/foo=bar
+  value:
+    baz: quux
+`,
+				`---
+waldo:
+  - thud: boo
+  - baz: quux
+corge: grault
+`,
+			),
+		)
+
+		DescribeTable(
 			"failure cases",
 			func(doc, ops string) {
 				patch, err := yamlpatch.DecodePatch([]byte(ops))
