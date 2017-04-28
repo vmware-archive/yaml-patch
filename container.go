@@ -10,34 +10,34 @@ type Container interface {
 	Remove(key string) error
 }
 
-func findContainer(c Container, path *OpPath) (Container, string) {
+func findContainer(c Container, path *OpPath) (Container, string, error) {
 	parts, key, err := path.Decompose()
 	if err != nil {
-		return nil, ""
+		return nil, "", err
 	}
 
 	foundContainer := c
 
 	for _, part := range parts {
 		node, err := foundContainer.Get(decodePatchKey(part))
-		if node == nil || err != nil {
-			return nil, ""
+		if err != nil {
+			return nil, "", err
 		}
 
 		if node.IsNodeSlice() {
 			foundContainer, err = node.NodeSlice()
 			if err != nil {
-				return nil, ""
+				return nil, "", err
 			}
 		} else {
 			foundContainer, err = node.NodeMap()
 			if err != nil {
-				return nil, ""
+				return nil, "", err
 			}
 		}
 	}
 
-	return foundContainer, decodePatchKey(key)
+	return foundContainer, decodePatchKey(key), nil
 }
 
 // From http://tools.ietf.org/html/rfc6901#section-4 :

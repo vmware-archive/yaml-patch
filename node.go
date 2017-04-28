@@ -140,7 +140,11 @@ func (n *NodeMap) Add(key string, val *Node) error {
 
 // Get the node at the given key
 func (n *NodeMap) Get(key string) (*Node, error) {
-	return (*n)[key], nil
+	if node, ok := (*n)[key]; ok {
+		return node, nil
+	}
+
+	return nil, fmt.Errorf("key does not exist: %s", key)
 }
 
 // Remove the node at the given key

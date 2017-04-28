@@ -73,8 +73,8 @@ func (o *Operation) Perform(c Container) error {
 }
 
 func tryAdd(doc Container, op *Operation) error {
-	con, key := findContainer(doc, &op.Path)
-	if con == nil {
+	con, key, err := findContainer(doc, &op.Path)
+	if err != nil {
 		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
 	}
 
@@ -82,8 +82,8 @@ func tryAdd(doc Container, op *Operation) error {
 }
 
 func tryRemove(doc Container, op *Operation) error {
-	con, key := findContainer(doc, &op.Path)
-	if con == nil {
+	con, key, err := findContainer(doc, &op.Path)
+	if err != nil {
 		return fmt.Errorf("yamlpatch remove operation does not apply: doc is missing path: %s", op.Path)
 	}
 
@@ -91,8 +91,8 @@ func tryRemove(doc Container, op *Operation) error {
 }
 
 func tryReplace(doc Container, op *Operation) error {
-	con, key := findContainer(doc, &op.Path)
-	if con == nil {
+	con, key, err := findContainer(doc, &op.Path)
+	if err != nil {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing path: %s", op.Path)
 	}
 
@@ -105,8 +105,8 @@ func tryReplace(doc Container, op *Operation) error {
 }
 
 func tryMove(doc Container, op *Operation) error {
-	con, key := findContainer(doc, &op.From)
-	if con == nil {
+	con, key, err := findContainer(doc, &op.From)
+	if err != nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing from path: %s", op.From)
 	}
 
@@ -120,8 +120,8 @@ func tryMove(doc Container, op *Operation) error {
 		return err
 	}
 
-	con, key = findContainer(doc, &op.Path)
-	if con == nil {
+	con, key, err = findContainer(doc, &op.Path)
+	if err != nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing destination path: %s", op.Path)
 	}
 
@@ -129,8 +129,8 @@ func tryMove(doc Container, op *Operation) error {
 }
 
 func tryCopy(doc Container, op *Operation) error {
-	con, key := findContainer(doc, &op.From)
-	if con == nil {
+	con, key, err := findContainer(doc, &op.From)
+	if err != nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing from path: %s", op.From)
 	}
 
@@ -139,8 +139,8 @@ func tryCopy(doc Container, op *Operation) error {
 		return err
 	}
 
-	con, key = findContainer(doc, &op.Path)
-	if con == nil {
+	con, key, err = findContainer(doc, &op.Path)
+	if err != nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing destination path: %s", op.Path)
 	}
 
