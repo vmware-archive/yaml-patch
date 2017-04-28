@@ -1,43 +1,83 @@
 # yaml-patch
 
-yaml-patch is a YAML-version of Evan Phoenix's
+`yaml-patch` is a version of Evan Phoenix's
 [json-patch](https://github.com/evanphx/json-patch), which is an implementation
-of [JavaScript Object Notation (JSON) Patch](https://tools.ietf.org/html/rfc6902)
-in Go.
+of [JavaScript Object Notation (JSON) Patch](https://tools.ietf.org/html/rfc6902),
+but for YAML.
 
-## Usage
+
+## Installing
+
+`go get github.com/krishicks/yaml-patch`
+
+
+## API
+
+Given the following RFC6902-ish YAML document, `ops`:
 
 ```
-  // Given a source document as []byte
-  doc := []byte(`---
+---
+- op: add
+  path: /baz/waldo
+  value: fred
+```
+
+And the following YAML that is to be modified, `src`:
+
+```
+---
+foo: bar
+baz:
+  quux: grault
+```
+
+Decode the ops file into a patch:
+
+```
+patch, err := yamlpatch.DecodePatch(ops)
+// handle err
+```
+
+Then apply that patch to the document:
+
+```
+dst, err := patch.Apply(src)
+// handle err
+
+// do something with dst
+```
+
+### Example
+
+```
+doc := []byte(`---
 foo: bar
 baz:
   quux: grault
 `)
 
-  // And an array of operations as []byte
-  ops := []byte(`---
+ops := []byte(`---
 - op: add
   path: /baz/waldo
   value: fred
 `)
 
-  // Decode the operations into a Patch
-  patch, err := yamlpatch.DecodePatch(ops)
-  if err != nil {
-    log.Fatalf("decoding patch failed: %s", err)
-  }
+patch, err := yamlpatch.DecodePatch(ops)
+if err != nil {
+  log.Fatalf("decoding patch failed: %s", err)
+}
 
-  // Apply the patch to the document
-  bs, err := patch.Apply(doc)
-  if err != nil {
-    log.Fatalf("applying patch failed: %s", err)
-  }
+bs, err := patch.Apply(doc)
+if err != nil {
+  log.Fatalf("applying patch failed: %s", err)
+}
 
-  // Gander in awe at your modified document
-  fmt.Println(string(bs))
-  // baz:
-  //   quux: grault
-  //   waldo: fred
-  // foo: bar
+fmt.Println(string(bs))
+```
+
+```
+baz:
+  quux: grault
+  waldo: fred
+foo: bar
 ```
