@@ -31,85 +31,239 @@ var _ = Describe("Patch", func() {
 				Expect(actualIface).To(Equal(expectedIface))
 			},
 			Entry("adding an element to an object",
-				"---\nfoo: bar",
-				"---\n- op: add\n  path: /baz\n  value: qux",
-				"---\nfoo: bar\nbaz: qux",
+				`---
+foo: bar
+`,
+				`---
+- op: add
+  path: /baz
+  value: qux
+`,
+				`---
+foo: bar
+baz: qux
+`,
 			),
 			Entry("adding an element to an array",
-				"---\nfoo: [bar,baz]",
-				"---\n- op: add\n  path: /foo/1\n  value: qux",
-				"---\nfoo: [bar,qux,baz]",
+				`---
+foo: [bar,baz]
+`,
+				`---
+- op: add
+  path: /foo/1
+  value: qux
+`,
+				`---
+foo: [bar,qux,baz]
+`,
 			),
 			Entry("removing an element from an object",
-				"---\nfoo: bar\nbaz: qux",
-				"---\n- op: remove\n  path: /baz",
-				"---\nfoo: bar",
+				`---
+foo: bar
+baz: qux
+`,
+				`---
+- op: remove
+  path: /baz
+`,
+				`---
+foo: bar
+`,
 			),
 			Entry("removing an element from an array",
-				"---\nfoo: [bar,qux,baz]",
-				"---\n- op: remove\n  path: /foo/1",
-				"---\nfoo: [bar,baz]",
+				`---
+foo: [bar,qux,baz]
+`,
+				`---
+- op: remove
+  path: /foo/1
+`,
+				`---
+foo: [bar,baz]
+`,
 			),
 			Entry("replacing an element in an object",
-				"---\nfoo: bar\nbaz: qux",
-				"---\n- op: replace\n  path: /baz\n  value: boo",
-				"---\nfoo: bar\nbaz: boo",
+				`---
+foo: bar
+baz: qux
+`,
+				`---
+- op: replace
+  path: /baz
+  value: boo
+`,
+				`---
+foo: bar
+baz: boo
+`,
 			),
 			Entry("moving an element in an object",
-				"---\nfoo:\n  bar: baz\n  waldo: fred\nqux:\n  corge: grault",
-				"---\n- op: move\n  from: /foo/waldo\n  path: /qux/thud",
-				"---\nfoo:\n  bar: baz\nqux:\n  corge: grault\n  thud: fred",
+				`---
+foo:
+  bar: baz
+  waldo: fred
+qux:
+  corge: grault
+`,
+				`---
+- op: move
+  from: /foo/waldo
+  path: /qux/thud
+`,
+				`---
+foo:
+  bar: baz
+qux:
+  corge: grault
+  thud: fred
+`,
 			),
 			Entry("moving an element in an array",
-				"---\nfoo: [all, grass, cows, eat]",
-				"---\n- op: move\n  from: /foo/1\n  path: /foo/3",
-				"---\nfoo: [all, cows, eat, grass]",
+				`---
+foo: [all, grass, cows, eat]
+`,
+				`---
+- op: move
+  from: /foo/1
+  path: /foo/3
+`,
+				`---
+foo: [all, cows, eat, grass]
+`,
 			),
 			Entry("adding an object to an object",
-				"---\nfoo: bar",
-				"---\n- op: add\n  path: /child\n  value:\n    grandchild: {}",
-				"---\nfoo: bar\nchild:\n  grandchild: {}",
+				`---
+foo: bar
+`,
+				`---
+- op: add
+  path: /child
+  value:
+    grandchild: {}
+`,
+				`---
+foo: bar
+child:
+  grandchild: {}
+`,
 			),
 			Entry("appending an element to an array",
-				"---\nfoo: [bar]",
-				"---\n- op: add\n  path: /foo/-\n  value: [abc,def]",
-				"---\nfoo: [bar, [abc, def]]",
+				`---
+foo: [bar]
+`,
+				`---
+- op: add
+  path: /foo/-
+  value: [abc,def]
+`,
+				`---
+foo: [bar, [abc, def]]
+`,
 			),
 			Entry("removing a nil element from an object",
-				"---\nfoo: bar\nqux:\n  baz: 1\n  bar: ~",
-				"---\n- op: remove\n  path: /qux/bar",
-				"---\nfoo: bar\nqux:\n  baz: 1",
+				`---
+foo: bar
+qux:
+  baz: 1
+  bar: ~
+`,
+				`---
+- op: remove
+  path: /qux/bar
+`,
+				`---
+foo: bar
+qux:
+  baz: 1
+`,
 			),
 			Entry("adding a nil element to an object",
-				"---\nfoo: bar",
-				"---\n- op: add\n  path: /baz\n  value: ~",
-				"---\nfoo: bar\nbaz: ~",
+				`---
+foo: bar
+`,
+				`---
+- op: add
+  path: /baz
+  value: ~
+`,
+				`---
+foo: bar
+baz: ~
+`,
 			),
 			Entry("replacing the sole element in an array",
-				"---\nfoo: [bar]",
-				"---\n- op: replace\n  path: /foo/0\n  value: baz",
-				"---\nfoo: [baz]",
+				`---
+foo: [bar]
+`,
+				`---
+- op: replace
+  path: /foo/0
+  value: baz
+`,
+				`---
+foo: [baz]
+`,
 			),
 			Entry("replacing an element in an array within a root array",
-				"---\n- foo: [bar, qux, baz]",
-				"---\n- op: replace\n  path: /0/foo/0\n  value: bum",
-				"---\n- foo: [bum, qux, baz]",
+				`---
+- foo: [bar, qux, baz]
+`,
+				`---
+- op: replace
+  path: /0/foo/0
+  value: bum
+`,
+				`---
+- foo: [bum, qux, baz]
+`,
 			),
 			Entry("copying an element in an array within a root array with an index",
-				"---\n- foo: [bar, qux, baz]\n  bar: [qux, baz]",
-				"---\n- op: copy\n  from: /0/foo/0\n  path: /0/bar/0",
-				"---\n- foo: [bar, qux, baz]\n  bar: [bar, baz]",
+				`---
+- foo: [bar, qux, baz]
+  bar: [qux, baz]
+`,
+				`---
+- op: copy
+  from: /0/foo/0
+  path: /0/bar/0
+`,
+				`---
+- foo: [bar, qux, baz]
+  bar: [bar, baz]
+`,
 			),
 			XEntry("copying an element in an array within a root array to a destination without an index",
 				// this is in jsonpatch, but I'd like confirmation from the spec that this is intended
-				"---\n- foo: [bar, qux, baz]\n  bar: [qux, baz]",
-				"---\n- op: copy\n  from: /0/foo/0\n  path: /0/bar",
-				"---\n- foo: [bar, qux, baz]\n  bar: [bar, qux, baz]",
+				`---
+- foo: [bar, qux, baz]
+  bar: [qux, baz]
+`,
+				`---
+- op: copy
+  from: /0/foo/0
+  path: /0/bar
+`,
+				`---
+- foo: [bar, qux, baz]
+  bar: [bar, qux, baz]
+`,
 			),
 			XEntry("copying an element in an array within a root array to a destination without an index",
-				"---\n- foo:\n  bar: [qux, baz]\n  baz:\n    qux: bum",
-				"---\n- op: copy\n  from: /0/foo/bar\n  path: /0/baz/bar",
-				"---\n- foo: [bar, qux, baz]\n  bar: [bar, qux, baz]",
+				`---
+- foo:
+  bar: [qux, baz]
+  baz:
+    qux: bum
+`,
+				`---
+- op: copy
+  from: /0/foo/bar
+  path: /0/baz/bar
+`,
+				`---
+- foo: [bar, qux, baz]
+  bar: [bar, qux, baz]
+`,
 			),
 		)
 
@@ -133,9 +287,18 @@ var _ = Describe("Patch", func() {
 				Expect(actualIface).To(Equal(expectedIface))
 			},
 			Entry("a path that begins with a composite key",
-				"---\n- foo: bar",
-				"---\n- op: replace\n  path: /foo=bar\n  value:\n    baz: quux",
-				"---\n- baz: quux",
+				`---
+- foo: bar
+`,
+				`---
+- op: replace
+  path: /foo=bar
+  value:
+    baz: quux
+`,
+				`---
+- baz: quux
+`,
 			),
 			Entry("a path that begins with an array index and ends with a composite key",
 				`---
@@ -143,18 +306,21 @@ var _ = Describe("Patch", func() {
     - thud: boo
     - foo: bar
 - corge: grault
+
 `,
 				`---
 - op: replace
   path: /0/foo=bar
   value:
     baz: quux
+
 `,
 				`---
 - waldo:
     - thud: boo
     - baz: quux
 - corge: grault
+
 `,
 			),
 			Entry("a path that begins with an object key and ends with a composite key",
@@ -163,18 +329,21 @@ waldo:
   - thud: boo
   - foo: bar
 corge: grault
+
 `,
 				`---
 - op: replace
   path: /waldo/foo=bar
   value:
     baz: quux
+
 `,
 				`---
 waldo:
   - thud: boo
   - baz: quux
 corge: grault
+
 `,
 			),
 		)
@@ -189,36 +358,92 @@ corge: grault
 				Expect(err).To(HaveOccurred())
 			},
 			Entry("adding an element to an object with a bad pointer",
-				"---\nfoo: bar",
-				"---\n- op: add\n  path: /baz/bat\n  value: qux",
+				`---
+foo: bar
+`,
+				`---
+- op: add
+  path: /baz/bat
+  value: qux
+`,
 			),
 			Entry("removing an element from an object with a bad pointer",
-				"---\na:\n  b:\n    d: 1",
-				"---\n- op: remove\n  path: /a/b/c",
+				`---
+a:
+  b:
+    d: 1
+`,
+				`---
+- op: remove
+  path: /a/b/c
+`,
 			),
 			Entry("moving an element in an object with a bad pointer",
-				"---\na:\n  b:\n    d: 1",
-				"---\n- op: move\n  from: /a/b/c\n  path: /a/b/e",
+				`---
+a:
+  b:
+    d: 1
+`,
+				`---
+- op: move
+  from: /a/b/c
+  path: /a/b/e
+`,
 			),
 			Entry("removing an element from an array with a bad pointer",
-				"---\na:\n  b: [1]",
-				"---\n- op: remove\n  path: /a/b/1",
+				`---
+a:
+  b: [1]
+`,
+				`---
+- op: remove
+  path: /a/b/1
+`,
 			),
 			Entry("moving an element from an array with a bad pointer",
-				"---\na:\n  b: [1]",
-				"---\n- op: move\n  from: /a/b/1\n  path: /a/b/2",
+				`---
+a:
+  b: [1]
+`,
+				`---
+- op: move
+  from: /a/b/1
+  path: /a/b/2
+`,
 			),
 			Entry("an operation with an invalid pathz field",
-				"---\nfoo: bar",
-				"---\n- op: add\n  pathz: /baz\n  value: qux",
+				`---
+foo: bar
+`,
+				`---
+- op: add
+  pathz: /baz
+  value: qux
+`,
 			),
 			Entry("an add operation with an empty path",
-				"---\nfoo: bar",
-				"---\n- op: add\n  path: ''\n  value: qux",
+				`---
+foo: bar
+`,
+				`---
+- op: add
+  path: ''
+  value: qux
+`,
 			),
 			Entry("a replace operation on an array with an invalid path",
-				"---\nname:\n  foo:\n    bat\n  qux:\n    bum",
-				"---\n- op: replace\n  path: /foo/2\n  value: bum",
+				`---
+name:
+  foo:
+    bat
+  qux:
+    bum
+`,
+				`---
+- op: replace
+  path: /foo/2
+  value: bum
+`,
 			),
 		)
 	})
