@@ -346,6 +346,31 @@ corge: grault
 
 `,
 			),
+			Entry("removes multiple entries in a single op",
+				`---
+foo:
+  - bar: baz
+  - waldo: fred
+qux:
+  corge: grault
+  thud:
+    - waldo: fred
+    - bar: baz
+`,
+				`---
+- op: remove
+  path: /waldo=fred
+
+`,
+				`---
+foo:
+  - bar: baz
+qux:
+  corge: grault
+  thud:
+    - bar: baz
+`,
+			),
 		)
 
 		DescribeTable(
