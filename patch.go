@@ -142,8 +142,6 @@ func findAllPaths(findKey, findValue string, data interface{}) (interface{}, []s
 				paths = append(paths, fmt.Sprintf("%d", i))
 			}
 		}
-	default:
-		panic(fmt.Sprintf("don't know how to handle %T", data))
 	}
 
 	if paths != nil {
