@@ -1,6 +1,9 @@
 package yamlpatch
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Op is a type alias
 type Op string
@@ -14,12 +17,31 @@ const (
 	opCopy    Op = "copy"
 )
 
+// OpPath is an RFC6902 'pointer'
+type OpPath string
+
+// Decompose returns the pointer's components:
+// "/foo" => [], "foo"
+// "/foo/1" => ["foo"], "1"
+// "/foo/1/bar" => ["foo", "1"], "bar"
+func (p *OpPath) Decompose() ([]string, string, error) {
+	path := string(*p)
+
+	if !strings.HasPrefix(path, "/") {
+		return nil, "", fmt.Errorf("operation path is missing leading '/': %s", path)
+	}
+
+	parts := strings.Split(path, "/")[1:]
+
+	return parts[:len(parts)-1], parts[len(parts)-1], nil
+}
+
 // Operation is an RFC6902 'Operation'
 // https://tools.ietf.org/html/rfc6902#section-4
 type Operation struct {
 	Op       Op           `yaml:"op,omitempty"`
-	Path     string       `yaml:"path,omitempty"`
-	From     string       `yaml:"from,omitempty"`
+	Path     OpPath       `yaml:"path,omitempty"`
+	From     OpPath       `yaml:"from,omitempty"`
 	RawValue *interface{} `yaml:"value,omitempty"`
 }
 
@@ -51,7 +73,7 @@ func (o *Operation) Perform(c Container) error {
 }
 
 func tryAdd(doc Container, op *Operation) error {
-	con, key := findContainer(doc, op.Path)
+	con, key := findContainer(doc, &op.Path)
 	if con == nil {
 		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
 	}
@@ -60,7 +82,7 @@ func tryAdd(doc Container, op *Operation) error {
 }
 
 func tryRemove(doc Container, op *Operation) error {
-	con, key := findContainer(doc, op.Path)
+	con, key := findContainer(doc, &op.Path)
 	if con == nil {
 		return fmt.Errorf("yamlpatch remove operation does not apply: doc is missing path: %s", op.Path)
 	}
@@ -69,7 +91,7 @@ func tryRemove(doc Container, op *Operation) error {
 }
 
 func tryReplace(doc Container, op *Operation) error {
-	con, key := findContainer(doc, op.Path)
+	con, key := findContainer(doc, &op.Path)
 	if con == nil {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing path: %s", op.Path)
 	}
@@ -83,7 +105,7 @@ func tryReplace(doc Container, op *Operation) error {
 }
 
 func tryMove(doc Container, op *Operation) error {
-	con, key := findContainer(doc, op.From)
+	con, key := findContainer(doc, &op.From)
 	if con == nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing from path: %s", op.From)
 	}
@@ -98,7 +120,7 @@ func tryMove(doc Container, op *Operation) error {
 		return err
 	}
 
-	con, key = findContainer(doc, op.Path)
+	con, key = findContainer(doc, &op.Path)
 	if con == nil {
 		return fmt.Errorf("yamlpatch move operation does not apply: doc is missing destination path: %s", op.Path)
 	}
@@ -107,7 +129,7 @@ func tryMove(doc Container, op *Operation) error {
 }
 
 func tryCopy(doc Container, op *Operation) error {
-	con, key := findContainer(doc, op.From)
+	con, key := findContainer(doc, &op.From)
 	if con == nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing from path: %s", op.From)
 	}
@@ -117,7 +139,7 @@ func tryCopy(doc Container, op *Operation) error {
 		return err
 	}
 
-	con, key = findContainer(doc, op.Path)
+	con, key = findContainer(doc, &op.Path)
 	if con == nil {
 		return fmt.Errorf("copy operation does not apply: doc is missing destination path: %s", op.Path)
 	}

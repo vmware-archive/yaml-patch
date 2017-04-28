@@ -10,18 +10,13 @@ type Container interface {
 	Remove(key string) error
 }
 
-func findContainer(c Container, path string) (Container, string) {
-	foundContainer := c
-
-	split := strings.Split(path, "/")
-
-	if len(split) < 2 {
+func findContainer(c Container, path *OpPath) (Container, string) {
+	parts, key, err := path.Decompose()
+	if err != nil {
 		return nil, ""
 	}
 
-	parts := split[1 : len(split)-1]
-
-	key := split[len(split)-1]
+	foundContainer := c
 
 	for _, part := range parts {
 		node, err := foundContainer.Get(decodePatchKey(part))
