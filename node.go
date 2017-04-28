@@ -26,7 +26,9 @@ type Node struct {
 
 // NewNode returns a new Node. It expects a pointer to an interface{}
 func NewNode(raw *interface{}) *Node {
-	return &Node{raw: raw, nodeType: NodeTypeRaw}
+	return &Node{
+		raw: raw,
+	}
 }
 
 // MarshalYAML implements yaml.Marshaler, and returns the correct interface{}
