@@ -10,27 +10,31 @@ import (
 	yamlpatch "github.com/krishicks/yaml-patch"
 )
 
-type Opts struct {
+type opts struct {
 	OpsFiles []FileFlag `long:"ops-file" short:"o" value-name:"PATH" description:"Path to file with one or more operations"`
 }
 
 func main() {
-	var opts Opts
-	_, err := flags.Parse(&opts)
+	var o opts
+	_, err := flags.Parse(&o)
 	if err != nil {
 		log.Fatalf("error: %s\n", err)
 	}
 
 	var patches []yamlpatch.Patch
-	for _, opsFile := range opts.OpsFiles {
-		bs, err := ioutil.ReadFile(opsFile.Path())
+	for _, opsFile := range o.OpsFiles {
+		var bs []byte
+		bs, err = ioutil.ReadFile(opsFile.Path())
 		if err != nil {
 			log.Fatalf("error reading opsfile: %s", err)
 		}
-		patch, err := yamlpatch.DecodePatch(bs)
+
+		var patch yamlpatch.Patch
+		patch, err = yamlpatch.DecodePatch(bs)
 		if err != nil {
 			log.Fatalf("error decoding opsfile: %s", err)
 		}
+
 		patches = append(patches, patch)
 	}
 
