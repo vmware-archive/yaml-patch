@@ -21,6 +21,8 @@ func main() {
 		log.Fatalf("error: %s\n", err)
 	}
 
+	placeholderWrapper := yamlpatch.NewPlaceholderWrapper("{{", "}}")
+
 	var patches []yamlpatch.Patch
 	for _, opsFile := range o.OpsFiles {
 		var bs []byte
@@ -30,7 +32,7 @@ func main() {
 		}
 
 		var patch yamlpatch.Patch
-		patch, err = yamlpatch.DecodePatch(bs)
+		patch, err = yamlpatch.DecodePatch(placeholderWrapper.Wrap(bs))
 		if err != nil {
 			log.Fatalf("error decoding opsfile: %s", err)
 		}
@@ -43,7 +45,7 @@ func main() {
 		log.Fatalf("error reading from stdin: %s", err)
 	}
 
-	mdoc := doc
+	mdoc := placeholderWrapper.Wrap(doc)
 	for _, patch := range patches {
 		mdoc, err = patch.Apply(mdoc)
 		if err != nil {
@@ -51,5 +53,5 @@ func main() {
 		}
 	}
 
-	fmt.Printf("%s", mdoc)
+	fmt.Printf("%s", placeholderWrapper.Unwrap(mdoc))
 }
