@@ -10,6 +10,9 @@ but for YAML.
 
 `go get github.com/krishicks/yaml-patch`
 
+If you want to use the CLI:
+
+`go get github.com/krishicks/yaml-patch/cmd/yaml-patch`
 
 ## API
 
