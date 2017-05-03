@@ -340,6 +340,30 @@ waldo:
 corge: grault
 `,
 			),
+			Entry("a path that doesn't end with a composite key",
+				`---
+jobs:
+- name: upgrade-opsmgr
+  serial: true
+  plan:
+  - get: pivnet-opsmgr
+  - put: something-else
+`,
+				`---
+- op: replace
+  path: /jobs/name=upgrade-opsmgr/plan/1
+  value:
+    get: something-else
+`,
+				`---
+jobs:
+- name: upgrade-opsmgr
+  serial: true
+  plan:
+  - get: pivnet-opsmgr
+  - get: something-else
+`,
+			),
 			Entry("removes multiple entries in a single op",
 				`---
 foo:
