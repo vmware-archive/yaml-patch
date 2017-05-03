@@ -23,6 +23,7 @@ jobs:
     args:
     - arg: arg1
     - arg: arg2
+    bool: true
   - get: B
 
 - name: job2

@@ -105,8 +105,6 @@ func findAll(prefix, findKey, findValue string, iface interface{}) map[string]in
 				matches[route] = match
 			}
 		}
-	default:
-		panic(fmt.Sprintf("don't know how to handle %T: %s", iface, iface))
 	}
 
 	return matches
