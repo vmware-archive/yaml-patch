@@ -18,8 +18,10 @@ type PlaceholderWrapper struct {
 // wrap and unwrap the provided left and right sides of a placeholder, e.g. {{
 // and }}
 func NewPlaceholderWrapper(left, right string) *PlaceholderWrapper {
-	unwrappedRegex := regexp.MustCompile(`\s` + left + `([^}]+)` + right)
-	wrappedRegex := regexp.MustCompile(`\s'` + left + `([^}]+)` + right + `'`)
+	escapedLeft := regexp.QuoteMeta(left)
+	escapedRight := regexp.QuoteMeta(right)
+	unwrappedRegex := regexp.MustCompile(`\s` + escapedLeft + `([^` + escapedRight + `]+)` + escapedRight)
+	wrappedRegex := regexp.MustCompile(`\s'` + escapedLeft + `([^` + escapedRight + `]+)` + escapedRight + `'`)
 
 	return &PlaceholderWrapper{
 		LeftSide:       left,

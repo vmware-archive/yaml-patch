@@ -45,6 +45,14 @@ content: |
 			actual := placeholderWrapper.Wrap(input)
 			Expect(string(actual)).To(Equal(string(input)))
 		})
+
+		It("supports alternate placeholders", func() {
+			placeholderWrapper = yamlpatch.NewPlaceholderWrapper("((", "))")
+			input := []byte(`content with an ((alternate-placeholder))`)
+			expected := []byte(`content with an '((alternate-placeholder))'`)
+			actual := placeholderWrapper.Wrap(input)
+			Expect(actual).To(Equal(expected))
+		})
 	})
 
 	Describe("Unwrap", func() {
@@ -72,6 +80,14 @@ content: |
 			`)
 			actual := placeholderWrapper.Unwrap(input)
 			Expect(string(actual)).To(Equal(string(expected)))
+		})
+
+		It("supports alternate placeholders", func() {
+			placeholderWrapper = yamlpatch.NewPlaceholderWrapper("((", "))")
+			input := []byte(`content with an '((alternate-placeholder))'`)
+			expected := []byte(`content with an ((alternate-placeholder))`)
+			actual := placeholderWrapper.Unwrap(input)
+			Expect(actual).To(Equal(expected))
 		})
 	})
 })
