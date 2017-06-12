@@ -65,6 +65,7 @@ func (n *Node) RawValue() *interface{} {
 	return n.raw
 }
 
+// Container returns the node as a Container
 func (n *Node) Container() (Container, error) {
 	switch rt := (*n.raw).(type) {
 	case []interface{}:
@@ -83,7 +84,7 @@ func (n *Node) Container() (Container, error) {
 
 		return &n.nodeSlice, nil
 	case map[interface{}]interface{}:
-		doc := map[interface{}]*Node{}
+		doc := make(nodeMap, len(rt))
 
 		for k := range rt {
 			v := rt[k]
