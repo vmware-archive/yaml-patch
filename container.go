@@ -1,6 +1,9 @@
 package yamlpatch
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Container is the interface for performing operations on Nodes
 type Container interface {
@@ -22,6 +25,10 @@ func findContainer(c Container, path *OpPath) (Container, string, error) {
 		node, err := foundContainer.Get(decodePatchKey(part))
 		if err != nil {
 			return nil, "", err
+		}
+
+		if node == nil {
+			return nil, "", fmt.Errorf("key does not exist: %s", key)
 		}
 
 		if node.IsNodeSlice() {

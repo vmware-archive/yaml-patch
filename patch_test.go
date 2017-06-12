@@ -232,6 +232,58 @@ foo: [baz]
   bar: [bar, baz]
 `,
 			),
+			Entry("testing for the existence of a nil value in an object",
+				`---
+baz: ~
+`,
+				`---
+- op: test
+  path: /baz
+  value: ~
+`,
+				`---
+baz: ~
+`,
+			),
+			Entry("testing for the existence of a nil key in an object",
+				`---
+baz: ~
+`,
+				`---
+- op: test
+  path: /foo
+  value: ~
+`,
+				`---
+baz: ~
+`,
+			),
+			Entry("testing for the existence of a nil value in an object",
+				`---
+baz: qux
+`,
+				`---
+- op: test
+  path: /baz
+  value: qux
+`,
+				`---
+baz: qux
+`,
+			),
+			Entry("testing for the existence of an element in an array",
+				`---
+foo: [a, 2, c]
+`,
+				`---
+- op: test
+  path: /foo/1
+  value: 2
+`,
+				`---
+foo: [a, 2, c]
+`,
+			),
 			XEntry("copying an element in an array within a root array to a destination without an index",
 				// this is in jsonpatch, but I'd like confirmation from the spec that this is intended
 				`---

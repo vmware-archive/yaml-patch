@@ -60,6 +60,11 @@ func (n *Node) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
+// RawValue returns the interface that the YAML was unmarshaled into
+func (n *Node) RawValue() *interface{} {
+	return n.raw
+}
+
 // IsNodeSlice returns whether the contents it holds is a slice or not
 func (n *Node) IsNodeSlice() bool {
 	if n.nodeType == NodeTypeRaw {
@@ -125,6 +130,12 @@ func (n *Node) NodeSlice() (*NodeSlice, error) {
 	}
 }
 
+// Equal compares the values of the raw interfaces that the YAML was
+// unmarshaled into
+func (n *Node) Equal(other *Node) bool {
+	return *n.raw == *other.raw
+}
+
 // NodeMap represents a YAML object
 type NodeMap map[interface{}]*Node
 
@@ -142,11 +153,7 @@ func (n *NodeMap) Add(key string, val *Node) error {
 
 // Get the node at the given key
 func (n *NodeMap) Get(key string) (*Node, error) {
-	if node, ok := (*n)[key]; ok {
-		return node, nil
-	}
-
-	return nil, fmt.Errorf("key does not exist: %s", key)
+	return (*n)[key], nil
 }
 
 // Remove the node at the given key

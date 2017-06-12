@@ -1,6 +1,7 @@
 package yamlpatch
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -15,6 +16,7 @@ const (
 	opReplace Op = "replace"
 	opMove    Op = "move"
 	opCopy    Op = "copy"
+	opTest    Op = "test"
 )
 
 // OpPath is an RFC6902 'pointer'
@@ -72,6 +74,8 @@ func (o *Operation) Perform(c Container) error {
 		err = tryMove(c, o)
 	case opCopy:
 		err = tryCopy(c, o)
+	case opTest:
+		err = tryTest(c, o)
 	default:
 		err = fmt.Errorf("Unexpected op: %s", o.Op)
 	}
@@ -152,4 +156,28 @@ func tryCopy(doc Container, op *Operation) error {
 	}
 
 	return con.Set(key, val)
+}
+
+func tryTest(doc Container, op *Operation) error {
+	con, key, err := findContainer(doc, &op.Path)
+	if err != nil {
+		return fmt.Errorf("test operation does not apply: doc is missing from path: %s", op.From)
+	}
+
+	val, err := con.Get(key)
+	if err != nil {
+		return err
+	}
+
+	if val == nil {
+		if *op.Value().RawValue() == nil {
+			return nil
+		}
+	}
+
+	if op.Value().Equal(val) {
+		return nil
+	}
+
+	return errors.New("test failed")
 }
