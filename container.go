@@ -16,24 +16,20 @@ type Container interface {
 
 type nodeMap map[interface{}]*Node
 
-// Set or replace the Node at key with the provided Node
 func (n *nodeMap) Set(key string, val *Node) error {
 	(*n)[key] = val
 	return nil
 }
 
-// Add the provided Node at the given key
 func (n *nodeMap) Add(key string, val *Node) error {
 	(*n)[key] = val
 	return nil
 }
 
-// Get the node at the given key
 func (n *nodeMap) Get(key string) (*Node, error) {
 	return (*n)[key], nil
 }
 
-// Remove the node at the given key
 func (n *nodeMap) Remove(key string) error {
 	_, ok := (*n)[key]
 	if !ok {
@@ -46,7 +42,6 @@ func (n *nodeMap) Remove(key string) error {
 
 type nodeSlice []*Node
 
-// Set the Node at the given index with the provided Node
 func (n *nodeSlice) Set(index string, val *Node) error {
 	i, err := strconv.Atoi(index)
 	if err != nil {
@@ -74,7 +69,6 @@ func (n *nodeSlice) Set(index string, val *Node) error {
 	return nil
 }
 
-// Add the provided Node at the given index
 func (n *nodeSlice) Add(index string, val *Node) error {
 	if index == "-" {
 		*n = append(*n, val)
@@ -98,7 +92,6 @@ func (n *nodeSlice) Add(index string, val *Node) error {
 	return nil
 }
 
-// Get the node at the given index
 func (n *nodeSlice) Get(index string) (*Node, error) {
 	i, err := strconv.Atoi(index)
 	if err != nil {
@@ -112,7 +105,6 @@ func (n *nodeSlice) Get(index string) (*Node, error) {
 	return (*n)[i], nil
 }
 
-// Remove the node at the given index
 func (n *nodeSlice) Remove(index string) error {
 	i, err := strconv.Atoi(index)
 	if err != nil {
