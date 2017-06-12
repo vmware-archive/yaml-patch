@@ -66,20 +66,23 @@ func (n *Node) RawValue() *interface{} {
 }
 
 func (n *Node) Container() (Container, error) {
-	switch (*n.raw).(type) {
+	switch rt := (*n.raw).(type) {
 	case []interface{}:
-		return n.NodeSlice()
-	case map[interface{}]interface{}:
-		return n.NodeMap()
-	default:
-		return nil, fmt.Errorf("don't know how to make container from: %T", *n.raw)
-	}
-}
+		if n.nodeSlice != nil {
+			return &n.nodeSlice, nil
+		}
 
-// NodeMap returns the node as a NodeMap, if the raw interface{} it holds is
-// indeed a map[interface{}]interface{}
-func (n *Node) NodeMap() (Container, error) {
-	if rt, ok := (*n.raw).(map[interface{}]interface{}); ok {
+		array := make(NodeSlice, len(rt))
+
+		for i := range rt {
+			array[i] = NewNode(&rt[i])
+		}
+
+		n.nodeSlice = array
+		n.nodeType = NodeTypeSlice
+
+		return &n.nodeSlice, nil
+	case map[interface{}]interface{}:
 		doc := map[interface{}]*Node{}
 
 		for k := range rt {
@@ -93,30 +96,7 @@ func (n *Node) NodeMap() (Container, error) {
 		return &n.nodeMap, nil
 	}
 
-	return nil, fmt.Errorf("don't know how to convert %T into doc", n.raw)
-}
-
-// NodeSlice returns the node as a NodeSlice, if the raw interface{} it holds
-// is indeed a []interface{}
-func (n *Node) NodeSlice() (Container, error) {
-	if n.nodeSlice != nil {
-		return &n.nodeSlice, nil
-	}
-
-	if rt, ok := (*n.raw).([]interface{}); ok {
-		array := make(NodeSlice, len(rt))
-
-		for i := range rt {
-			array[i] = NewNode(&rt[i])
-		}
-
-		n.nodeSlice = array
-		n.nodeType = NodeTypeSlice
-
-		return &n.nodeSlice, nil
-	}
-
-	return nil, fmt.Errorf("don't know how to convert %T into ary", n.raw)
+	return nil, fmt.Errorf("don't know how to make container from: %T", *n.raw)
 }
 
 // Equal compares the values of the raw interfaces that the YAML was
