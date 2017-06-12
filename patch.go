@@ -44,8 +44,7 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 
 	for _, op := range p {
 		if op.Path.ContainsExtendedSyntax() {
-			var paths []string
-			paths = pathfinder.Find(string(op.Path))
+			paths := pathfinder.Find(string(op.Path))
 			if paths == nil {
 				return nil, fmt.Errorf("could not expand pointer: %s", op.Path)
 			}

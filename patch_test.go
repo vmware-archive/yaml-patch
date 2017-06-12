@@ -573,8 +573,7 @@ name:
 			patch, err := yamlpatch.DecodePatch(ops)
 			Expect(err).NotTo(HaveOccurred())
 
-			var v interface{}
-			v = "qux"
+			var v interface{} = "qux"
 			Expect(patch).To(Equal(yamlpatch.Patch{
 				{
 					Op:       "add",
