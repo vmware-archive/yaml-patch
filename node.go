@@ -62,12 +62,12 @@ func (n *Node) RawValue() *interface{} {
 
 // Container returns the node as a Container
 func (n *Node) Container() (Container, error) {
+	if n.container != nil {
+		return n.container, nil
+	}
+
 	switch rt := (*n.raw).(type) {
 	case []interface{}:
-		if n.container != nil {
-			return n.container, nil
-		}
-
 		array := make(nodeSlice, len(rt))
 
 		for i := range rt {
