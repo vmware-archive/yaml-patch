@@ -53,15 +53,10 @@ func (p *OpPath) String() string {
 // Operation is an RFC6902 'Operation'
 // https://tools.ietf.org/html/rfc6902#section-4
 type Operation struct {
-	Op       Op           `yaml:"op,omitempty"`
-	Path     OpPath       `yaml:"path,omitempty"`
-	From     OpPath       `yaml:"from,omitempty"`
-	RawValue *interface{} `yaml:"value,omitempty"`
-}
-
-// Value returns the operation's value as a *Node
-func (o *Operation) Value() *Node {
-	return NewNode(o.RawValue)
+	Op    Op     `yaml:"op,omitempty"`
+	Path  OpPath `yaml:"path,omitempty"`
+	From  OpPath `yaml:"from,omitempty"`
+	Value *Node  `yaml:"value,omitempty"`
 }
 
 // Perform executes the operation on the given container
@@ -94,7 +89,7 @@ func tryAdd(doc Container, op *Operation) error {
 		return fmt.Errorf("yamlpatch add operation does not apply: doc is missing path: %s", op.Path)
 	}
 
-	return con.Add(key, op.Value())
+	return con.Add(key, op.Value)
 }
 
 func tryRemove(doc Container, op *Operation) error {
@@ -117,7 +112,7 @@ func tryReplace(doc Container, op *Operation) error {
 		return fmt.Errorf("yamlpatch replace operation does not apply: doc is missing key: %s", op.Path)
 	}
 
-	return con.Set(key, op.Value())
+	return con.Set(key, op.Value)
 }
 
 func tryMove(doc Container, op *Operation) error {
@@ -175,12 +170,12 @@ func tryTest(doc Container, op *Operation) error {
 	}
 
 	if val == nil {
-		if *op.Value().RawValue() == nil {
+		if *op.Value.RawValue() == nil {
 			return nil
 		}
 	}
 
-	if op.Value().Equal(val) {
+	if op.Value.Equal(val) {
 		return nil
 	}
 

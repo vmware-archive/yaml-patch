@@ -574,11 +574,12 @@ name:
 			Expect(err).NotTo(HaveOccurred())
 
 			var v interface{} = "qux"
+			value := yamlpatch.NewNode(&v)
 			Expect(patch).To(Equal(yamlpatch.Patch{
 				{
-					Op:       "add",
-					Path:     "/baz",
-					RawValue: &v,
+					Op:    "add",
+					Path:  "/baz",
+					Value: value,
 				},
 			}))
 		})
