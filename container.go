@@ -98,11 +98,11 @@ func (n *nodeSlice) Get(index string) (*Node, error) {
 		return nil, err
 	}
 
-	if i >= len(*n) {
-		return nil, fmt.Errorf("Unable to access invalid index: %d", i)
+	if i >= 0 && i <= len(*n)-1 {
+		return (*n)[i], nil
 	}
 
-	return (*n)[i], nil
+	return nil, fmt.Errorf("Unable to access invalid index: %d", i)
 }
 
 func (n *nodeSlice) Remove(index string) error {
