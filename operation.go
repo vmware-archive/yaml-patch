@@ -45,6 +45,11 @@ func (p *OpPath) ContainsExtendedSyntax() bool {
 	return strings.Contains(string(*p), "=")
 }
 
+// String returns the OpPath as a string
+func (p *OpPath) String() string {
+	return string(*p)
+}
+
 // Operation is an RFC6902 'Operation'
 // https://tools.ietf.org/html/rfc6902#section-4
 type Operation struct {
