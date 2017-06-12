@@ -5,22 +5,11 @@ import (
 	"strconv"
 )
 
-// NodeType is a type alias
-type NodeType int
-
-// NodeTypes
-const (
-	NodeTypeRaw NodeType = iota
-	NodeTypeMap
-	NodeTypeSlice
-)
-
 // Node holds a YAML document that has not yet been processed into a NodeMap or
 // NodeSlice
 type Node struct {
 	raw       *interface{}
 	container Container
-	nodeType  NodeType
 }
 
 // NewNode returns a new Node. It expects a pointer to an interface{}
@@ -33,12 +22,11 @@ func NewNode(raw *interface{}) *Node {
 // MarshalYAML implements yaml.Marshaler, and returns the correct interface{}
 // to be marshaled
 func (n *Node) MarshalYAML() (interface{}, error) {
-	switch n.nodeType {
-	case NodeTypeRaw:
-		return *n.raw, nil
-	default:
+	if n.container != nil {
 		return n.container, nil
 	}
+
+	return *n.raw, nil
 }
 
 // UnmarshalYAML implements yaml.Unmarshaler
@@ -51,7 +39,6 @@ func (n *Node) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	n.raw = &data
-	n.nodeType = NodeTypeRaw
 	return nil
 }
 
@@ -75,7 +62,6 @@ func (n *Node) Container() (Container, error) {
 		}
 
 		n.container = &array
-		n.nodeType = NodeTypeSlice
 
 		return n.container, nil
 	case map[interface{}]interface{}:
@@ -87,7 +73,6 @@ func (n *Node) Container() (Container, error) {
 		}
 
 		n.container = &doc
-		n.nodeType = NodeTypeMap
 
 		return n.container, nil
 	}
