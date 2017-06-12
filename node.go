@@ -37,9 +37,8 @@ func (n *Node) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-// RawValue returns the interface that the YAML was unmarshaled into
-func (n *Node) RawValue() *interface{} {
-	return n.raw
+func (n *Node) Empty() bool {
+	return *n.raw == nil
 }
 
 // Container returns the node as a Container

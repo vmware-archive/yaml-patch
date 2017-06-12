@@ -169,10 +169,8 @@ func tryTest(doc Container, op *Operation) error {
 		return err
 	}
 
-	if val == nil {
-		if *op.Value.RawValue() == nil {
-			return nil
-		}
+	if op.Value.Empty() && val == nil {
+		return nil
 	}
 
 	if op.Value.Equal(val) {
