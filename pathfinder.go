@@ -56,9 +56,13 @@ func find(part string, routes map[string]Container) map[string]Container {
 			continue
 		}
 
-		if node, err := container.Get(part); err == nil && node != nil {
+		if node, err := container.Get(part); err == nil {
 			path := fmt.Sprintf("%s/%s", prefix, part)
-			matches[path] = node.Container()
+			if node == nil {
+				matches[path] = container
+			} else {
+				matches[path] = node.Container()
+			}
 		}
 	}
 
