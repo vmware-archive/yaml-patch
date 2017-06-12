@@ -30,10 +30,7 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 	}
 
 	var c Container
-	c, err = NewNode(&iface).Container()
-	if err != nil {
-		return nil, err
-	}
+	c = NewNode(&iface).Container()
 
 	pathfinder := NewPathFinder(iface)
 

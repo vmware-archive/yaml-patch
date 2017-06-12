@@ -42,9 +42,9 @@ func (n *Node) Empty() bool {
 }
 
 // Container returns the node as a Container
-func (n *Node) Container() (Container, error) {
+func (n *Node) Container() Container {
 	if n.container != nil {
-		return n.container, nil
+		return n.container
 	}
 
 	switch rt := (*n.raw).(type) {
@@ -65,7 +65,7 @@ func (n *Node) Container() (Container, error) {
 		}
 	}
 
-	return n.container, nil
+	return n.container
 }
 
 // Equal compares the values of the raw interfaces that the YAML was
