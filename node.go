@@ -37,6 +37,7 @@ func (n *Node) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
+// Empty returns whether the raw value is nil
 func (n *Node) Empty() bool {
 	return *n.raw == nil
 }
