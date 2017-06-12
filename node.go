@@ -19,8 +19,7 @@ const (
 // NodeSlice
 type Node struct {
 	raw       *interface{}
-	nodeMap   nodeMap
-	nodeSlice nodeSlice
+	container Container
 	nodeType  NodeType
 }
 
@@ -37,12 +36,8 @@ func (n *Node) MarshalYAML() (interface{}, error) {
 	switch n.nodeType {
 	case NodeTypeRaw:
 		return *n.raw, nil
-	case NodeTypeMap:
-		return n.nodeMap, nil
-	case NodeTypeSlice:
-		return n.nodeSlice, nil
 	default:
-		return nil, fmt.Errorf("Unknown type")
+		return n.container, nil
 	}
 }
 
@@ -69,8 +64,8 @@ func (n *Node) RawValue() *interface{} {
 func (n *Node) Container() (Container, error) {
 	switch rt := (*n.raw).(type) {
 	case []interface{}:
-		if n.nodeSlice != nil {
-			return &n.nodeSlice, nil
+		if n.container != nil {
+			return n.container, nil
 		}
 
 		array := make(nodeSlice, len(rt))
@@ -79,10 +74,10 @@ func (n *Node) Container() (Container, error) {
 			array[i] = NewNode(&rt[i])
 		}
 
-		n.nodeSlice = array
+		n.container = &array
 		n.nodeType = NodeTypeSlice
 
-		return &n.nodeSlice, nil
+		return n.container, nil
 	case map[interface{}]interface{}:
 		doc := make(nodeMap, len(rt))
 
@@ -91,10 +86,10 @@ func (n *Node) Container() (Container, error) {
 			doc[k] = NewNode(&v)
 		}
 
-		n.nodeMap = doc
+		n.container = &doc
 		n.nodeType = NodeTypeMap
 
-		return &n.nodeMap, nil
+		return n.container, nil
 	}
 
 	return nil, fmt.Errorf("don't know how to make container from: %T", *n.raw)
