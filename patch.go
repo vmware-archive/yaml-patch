@@ -32,9 +32,8 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 	var c Container
 	c = NewNode(&iface).Container()
 
-	pathfinder := NewPathFinder(iface)
-
 	for _, op := range p {
+		pathfinder := NewPathFinder(c)
 		if op.Path.ContainsExtendedSyntax() {
 			paths := pathfinder.Find(string(op.Path))
 			if paths == nil {

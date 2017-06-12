@@ -73,3 +73,8 @@ func (n *Node) Container() Container {
 func (n *Node) Equal(other *Node) bool {
 	return *n.raw == *other.raw
 }
+
+// Value returns the raw value of the node
+func (n *Node) Value() interface{} {
+	return *n.raw
+}

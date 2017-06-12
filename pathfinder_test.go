@@ -36,7 +36,8 @@ jobs:
 
 		err := yaml.Unmarshal(bs, &iface)
 		Expect(err).NotTo(HaveOccurred())
-		pathfinder = yamlpatch.NewPathFinder(iface)
+		container := yamlpatch.NewNode(&iface).Container()
+		pathfinder = yamlpatch.NewPathFinder(container)
 	})
 
 	Describe("Find", func() {

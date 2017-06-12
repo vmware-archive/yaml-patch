@@ -2,21 +2,20 @@ package yamlpatch
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
 // PathFinder can be used to find RFC6902-standard paths given non-standard
 // (key=value) pointer syntax
 type PathFinder struct {
-	root interface{}
+	root Container
 }
 
 // NewPathFinder takes an interface that represents a YAML document and returns
 // a new PathFinder
-func NewPathFinder(iface interface{}) *PathFinder {
+func NewPathFinder(container Container) *PathFinder {
 	return &PathFinder{
-		root: iface,
+		root: container,
 	}
 }
 
@@ -29,7 +28,7 @@ func (p *PathFinder) Find(path string) []string {
 		return []string{"/"}
 	}
 
-	routes := map[string]interface{}{
+	routes := map[string]Container{
 		"": p.root,
 	}
 
@@ -45,63 +44,52 @@ func (p *PathFinder) Find(path string) []string {
 	return paths
 }
 
-func find(part string, routes map[string]interface{}) map[string]interface{} {
-	matches := map[string]interface{}{}
+func find(part string, routes map[string]Container) map[string]Container {
+	matches := map[string]Container{}
 
-	for prefix, iface := range routes {
+	for prefix, container := range routes {
 		if strings.Contains(part, "=") {
 			kv := strings.Split(part, "=")
-			if newMatches := findAll(prefix, kv[0], kv[1], iface); len(newMatches) > 0 {
+			if newMatches := findAll(prefix, kv[0], kv[1], container); len(newMatches) > 0 {
 				matches = newMatches
 			}
 			continue
 		}
 
-		switch it := iface.(type) {
-		case map[interface{}]interface{}:
-			for k, v := range it {
-				if ks, ok := k.(string); ok && ks == part {
-					path := fmt.Sprintf("%s/%s", prefix, ks)
-					matches[path] = v
-				}
-			}
-		case []interface{}:
-			if idx, err := strconv.Atoi(part); err == nil && idx >= 0 && idx <= len(it)-1 {
-				path := fmt.Sprintf("%s/%d", prefix, idx)
-				matches[path] = it[idx]
-			}
-		default:
-			panic(fmt.Sprintf("don't know how to handle %T: %s", iface, iface))
+		if node, err := container.Get(part); err == nil && node != nil {
+			path := fmt.Sprintf("%s/%s", prefix, part)
+			matches[path] = node.Container()
 		}
 	}
 
 	return matches
 }
 
-func findAll(prefix, findKey, findValue string, iface interface{}) map[string]interface{} {
-	matches := map[string]interface{}{}
+func findAll(prefix, findKey, findValue string, container Container) map[string]Container {
+	if container == nil {
+		return nil
+	}
 
-	switch it := iface.(type) {
-	case map[interface{}]interface{}:
-		for k, v := range it {
-			if ks, ok := k.(string); ok {
-				switch vs := v.(type) {
-				case string:
-					if ks == findKey && vs == findValue {
-						return map[string]interface{}{
-							prefix: it,
-						}
-					}
-				default:
-					for route, match := range findAll(fmt.Sprintf("%s/%s", prefix, ks), findKey, findValue, v) {
-						matches[route] = match
-					}
-				}
+	if v, err := container.Get(findKey); err == nil && v != nil {
+		if vs, ok := v.Value().(string); ok && vs == findValue {
+			return map[string]Container{
+				prefix: container,
 			}
 		}
-	case []interface{}:
-		for i, v := range it {
-			for route, match := range findAll(fmt.Sprintf("%s/%d", prefix, i), findKey, findValue, v) {
+	}
+
+	matches := map[string]Container{}
+
+	switch it := container.(type) {
+	case *nodeMap:
+		for k, v := range *it {
+			for route, match := range findAll(fmt.Sprintf("%s/%s", prefix, k), findKey, findValue, v.Container()) {
+				matches[route] = match
+			}
+		}
+	case *nodeSlice:
+		for i, v := range *it {
+			for route, match := range findAll(fmt.Sprintf("%s/%d", prefix, i), findKey, findValue, v.Container()) {
 				matches[route] = match
 			}
 		}
