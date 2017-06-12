@@ -284,6 +284,19 @@ foo: [a, 2, c]
 foo: [a, 2, c]
 `,
 			),
+			Entry("testing for the existence of an element in an object using escape ordering",
+				`---
+baz/foo: qux
+`,
+				`---
+- op: test
+  path: /baz~1foo
+  value: qux
+`,
+				`---
+baz/foo: qux
+`,
+			),
 			XEntry("copying an element in an array within a root array to a destination without an index",
 				// this is in jsonpatch, but I'd like confirmation from the spec that this is intended
 				`---
