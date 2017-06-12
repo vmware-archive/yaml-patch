@@ -25,6 +25,7 @@ jobs:
     - arg: arg2
     bool: true
   - get: B
+  - get: C/D
 
 - name: job2
   plan:
@@ -56,6 +57,7 @@ jobs:
 			Entry("return routes for multiple matches", "/jobs/get=A", []string{"/jobs/0/plan/0", "/jobs/1/plan/0/aggregate/1"}),
 			Entry("return a route for a single submatch with help", "/jobs/get=A/args/arg=arg2", []string{"/jobs/0/plan/0/args/1"}),
 			Entry("return a route for a single submatch with no help", "/jobs/get=A/arg=arg2", []string{"/jobs/0/plan/0/args/1"}),
+			Entry("return a route for a single submatch with help using escape ordering", "/jobs/get=C~1D", []string{"/jobs/0/plan/2"}),
 		)
 		DescribeTable(
 			"should not",

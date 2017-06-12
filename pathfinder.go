@@ -34,7 +34,7 @@ func (p *PathFinder) Find(path string) []string {
 	}
 
 	for _, part := range parts[1:] {
-		routes = find(part, routes)
+		routes = find(decodePatchKey(part), routes)
 	}
 
 	var paths []string
