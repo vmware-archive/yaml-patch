@@ -65,23 +65,20 @@ func (n *Node) RawValue() *interface{} {
 	return n.raw
 }
 
-// IsNodeSlice returns whether the contents it holds is a slice or not
-func (n *Node) IsNodeSlice() bool {
-	if n.nodeType == NodeTypeRaw {
-		switch (*n.raw).(type) {
-		case []interface{}:
-			return true
-		default:
-			return false
-		}
+func (n *Node) Container() (Container, error) {
+	switch (*n.raw).(type) {
+	case []interface{}:
+		return n.NodeSlice()
+	case map[interface{}]interface{}:
+		return n.NodeMap()
+	default:
+		return nil, fmt.Errorf("don't know how to make container from: %T", *n.raw)
 	}
-
-	return n.nodeType == NodeTypeSlice
 }
 
 // NodeMap returns the node as a NodeMap, if the raw interface{} it holds is
 // indeed a map[interface{}]interface{}
-func (n *Node) NodeMap() (*NodeMap, error) {
+func (n *Node) NodeMap() (Container, error) {
 	if n.nodeMap != nil {
 		return &n.nodeMap, nil
 	}
@@ -107,7 +104,7 @@ func (n *Node) NodeMap() (*NodeMap, error) {
 
 // NodeSlice returns the node as a NodeSlice, if the raw interface{} it holds
 // is indeed a []interface{}
-func (n *Node) NodeSlice() (*NodeSlice, error) {
+func (n *Node) NodeSlice() (Container, error) {
 	if n.nodeSlice != nil {
 		return &n.nodeSlice, nil
 	}

@@ -30,12 +30,7 @@ func (p Patch) Apply(doc []byte) ([]byte, error) {
 	}
 
 	var c Container
-	node := NewNode(&iface)
-	if node.IsNodeSlice() {
-		c, err = node.NodeSlice()
-	} else {
-		c, err = node.NodeMap()
-	}
+	c, err = NewNode(&iface).Container()
 	if err != nil {
 		return nil, err
 	}

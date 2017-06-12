@@ -31,16 +31,9 @@ func findContainer(c Container, path *OpPath) (Container, string, error) {
 			return nil, "", fmt.Errorf("path does not exist: %s", path)
 		}
 
-		if node.IsNodeSlice() {
-			foundContainer, err = node.NodeSlice()
-			if err != nil {
-				return nil, "", err
-			}
-		} else {
-			foundContainer, err = node.NodeMap()
-			if err != nil {
-				return nil, "", err
-			}
+		foundContainer, err = node.Container()
+		if err != nil {
+			return nil, "", err
 		}
 	}
 
