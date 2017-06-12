@@ -55,29 +55,23 @@ func (n *Node) Container() (Container, error) {
 
 	switch rt := (*n.raw).(type) {
 	case []interface{}:
-		array := make(nodeSlice, len(rt))
+		c := make(nodeSlice, len(rt))
+		n.container = &c
 
 		for i := range rt {
-			array[i] = NewNode(&rt[i])
+			c[i] = NewNode(&rt[i])
 		}
-
-		n.container = &array
-
-		return n.container, nil
 	case map[interface{}]interface{}:
-		doc := make(nodeMap, len(rt))
+		c := make(nodeMap, len(rt))
+		n.container = &c
 
 		for k := range rt {
 			v := rt[k]
-			doc[k] = NewNode(&v)
+			c[k] = NewNode(&v)
 		}
-
-		n.container = &doc
-
-		return n.container, nil
 	}
 
-	return nil, fmt.Errorf("don't know how to make container from: %T", *n.raw)
+	return n.container, nil
 }
 
 // Equal compares the values of the raw interfaces that the YAML was
