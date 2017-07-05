@@ -55,8 +55,7 @@ func find(part string, routes map[string]Container) map[string]Container {
 			return matches
 		}
 
-		if strings.Contains(part, "=") {
-			kv := strings.Split(part, "=")
+		if kv := strings.Split(part, "="); len(kv) == 2 {
 			if newMatches := findAll(prefix, kv[0], kv[1], container); len(newMatches) > 0 {
 				matches = newMatches
 			}
