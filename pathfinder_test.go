@@ -60,6 +60,7 @@ jobs:
 			Entry("return a route for a single submatch with no help", "/jobs/get=A/arg=arg2", []string{"/jobs/0/plan/0/args/1"}),
 			Entry("return a route for a single submatch with help using escape ordering", "/jobs/get=C~1D", []string{"/jobs/0/plan/2"}),
 			Entry("return a route when given a pointer with a leaf that does not exist", "/jobs/name=job1/nonexistent", []string{"/jobs/0/nonexistent"}),
+			Entry("return a route when given a pointer with an array thingy", "/jobs/name=job1/plan/-", []string{"/jobs/0/plan/-"}),
 		)
 		DescribeTable(
 			"should not",

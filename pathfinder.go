@@ -48,6 +48,13 @@ func find(part string, routes map[string]Container) map[string]Container {
 	matches := map[string]Container{}
 
 	for prefix, container := range routes {
+		if part == "-" {
+			for k := range routes {
+				matches[fmt.Sprintf("%s/-", k)] = routes[k]
+			}
+			return matches
+		}
+
 		if strings.Contains(part, "=") {
 			kv := strings.Split(part, "=")
 			if newMatches := findAll(prefix, kv[0], kv[1], container); len(newMatches) > 0 {
