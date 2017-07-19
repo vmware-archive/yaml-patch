@@ -297,6 +297,25 @@ baz/foo: qux
 baz/foo: qux
 `,
 			),
+			Entry("testing for the existence of an object",
+				`---
+foo:
+  - bar: baz
+    qux: corge
+`,
+				`---
+- op: test
+  path: /foo/0
+  value:
+    bar: baz
+    qux: corge
+`,
+				`---
+foo:
+  - bar: baz
+    qux: corge
+`,
+			),
 			XEntry("copying an element in an array within a root array to a destination without an index",
 				// this is in jsonpatch, but I'd like confirmation from the spec that this is intended
 				`---
