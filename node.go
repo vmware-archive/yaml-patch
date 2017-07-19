@@ -1,5 +1,7 @@
 package yamlpatch
 
+import "reflect"
+
 // Node holds a YAML document that has not yet been processed into a NodeMap or
 // NodeSlice
 type Node struct {
@@ -72,7 +74,7 @@ func (n *Node) Container() Container {
 // Equal compares the values of the raw interfaces that the YAML was
 // unmarshaled into
 func (n *Node) Equal(other *Node) bool {
-	return *n.raw == *other.raw
+	return reflect.DeepEqual(*n.raw, *other.raw)
 }
 
 // Value returns the raw value of the node
