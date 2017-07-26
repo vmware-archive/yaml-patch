@@ -17,8 +17,14 @@ type opts struct {
 func main() {
 	var o opts
 	_, err := flags.Parse(&o)
+
 	if err != nil {
-		log.Fatalf("error: %s\n", err)
+		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
+			os.Exit(0)
+		} else {
+			log.Fatalf("error: %s\n", err)
+			os.Exit(1)
+		}
 	}
 
 	placeholderWrapper := yamlpatch.NewPlaceholderWrapper("{{", "}}")
